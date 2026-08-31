@@ -105,10 +105,14 @@ function dateLabel(iso) {
 
 function escapeXml(text) {
   return String(text)
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function dayKey(value) {
+  return String(value || "").slice(0, 10);
 }
 
 function shortName(full, allNames) {
@@ -131,7 +135,7 @@ function matchRows() {
     return DATA.players.map((p) => ({ ...p, origem: "periodo" }));
   }
 
-  const games = DATA.performances.filter((p) => p.data === state.jogo);
+  const games = DATA.performances.filter((p) => dayKey(p.data) === dayKey(state.jogo));
   const ofN = normalize05(games.map((p) => p.scoreOfAjustado));
   const defN = normalize05(games.map((p) => p.scoreDefAjustado));
 
@@ -168,7 +172,7 @@ function renderMatches() {
   </button>`;
 
   const items = DATA.jogos.map((j) => {
-    const active = state.jogo === j.id ? "active" : "";
+    const active = dayKey(state.jogo) === dayKey(j.id) ? "active" : "";
     const tag = resultClass(j.resultado);
     return `<button type="button" class="match ${active}" data-jogo="${j.id}" data-result="${tag}">
       <strong>${j.resultado}</strong>
@@ -392,6 +396,24 @@ function closeDrawer() {
   els.drawer.hidden = true;
 }
 
+function setMinutos(value) {
+  state.minMinutos = Number(value) || 0;
+  els.minRange.value = String(state.minMinutos);
+  els.minLabel.textContent = String(state.minMinutos);
+}
+
+function applyJogo(id) {
+  state.jogo = id || "all";
+  if (state.jogo !== "all" && state.minMinutos > 90) {
+    setMinutos(0);
+  }
+  const rows = filteredRows();
+  if (!rows.length && state.minMinutos > 0) {
+    setMinutos(0);
+  }
+  render();
+}
+
 function render() {
   els.metaLine.textContent = `${DATA.meta.janela} · ${DATA.meta.fonte}`;
   renderMatches();
@@ -410,8 +432,7 @@ function bind() {
   });
 
   els.minRange.addEventListener("input", (e) => {
-    state.minMinutos = Number(e.target.value);
-    els.minLabel.textContent = String(state.minMinutos);
+    setMinutos(e.target.value);
     render();
   });
 
@@ -429,37 +450,38 @@ function bind() {
     state.search = "";
     state.posicoes.clear();
     state.jogo = "all";
-    state.minMinutos = 0;
+    setMinutos(0);
     state.sort = "scoreFinal";
     state.metric = "scoreFinal";
     els.searchInput.value = "";
-    els.minRange.value = "0";
-    els.minLabel.textContent = "0";
     els.sortSelect.value = "scoreFinal";
     els.metricSelect.value = "scoreFinal";
     closeDrawer();
     render();
   });
 
-  els.matchStrip.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-jogo]");
-    if (!btn) return;
-    state.jogo = btn.dataset.jogo;
-    render();
-  });
+  document.addEventListener("click", (e) => {
+    const matchBtn = e.target.closest("[data-jogo]");
+    if (matchBtn && els.matchStrip.contains(matchBtn)) {
+      e.preventDefault();
+      e.stopPropagation();
+      applyJogo(matchBtn.getAttribute("data-jogo"));
+      return;
+    }
 
-  els.posChips.addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-pos]");
-    if (!btn) return;
-    const pos = btn.dataset.pos;
-    if (state.posicoes.has(pos)) state.posicoes.delete(pos);
-    else state.posicoes.add(pos);
-    render();
-  });
+    const posBtn = e.target.closest("[data-pos]");
+    if (posBtn && els.posChips.contains(posBtn)) {
+      e.preventDefault();
+      const pos = posBtn.getAttribute("data-pos");
+      if (state.posicoes.has(pos)) state.posicoes.delete(pos);
+      else state.posicoes.add(pos);
+      render();
+      return;
+    }
 
-  document.body.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]")) return;
     const hit = e.target.closest("[data-player]");
-    if (hit) openDrawer(hit.dataset.player);
+    if (hit) openDrawer(hit.getAttribute("data-player"));
   });
 
   els.drawer.addEventListener("click", (e) => {
