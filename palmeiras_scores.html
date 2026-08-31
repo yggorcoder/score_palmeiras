@@ -4849,6 +4849,17 @@ function renderChips() {
   }).join("");
 }
 
+function golsDoPlacar(resultado) {
+  const n = Number(String(resultado || "").split("-")[0]);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function golsDosJogadoresNoJogo(data) {
+  return DATA.performances
+    .filter((p) => dayKey(p.data) === dayKey(data))
+    .reduce((s, p) => s + (p.Golos || 0), 0);
+}
+
 function renderKpis(rows) {
   if (!rows.length) {
     els.kpis.innerHTML = `<div class="kpi"><p>Sem atletas</p><strong>0</strong></div>`;
@@ -4856,13 +4867,36 @@ function renderKpis(rows) {
   }
   const best = [...rows].sort((a, b) => b.scoreFinal - a.scoreFinal)[0];
   const avg = rows.reduce((s, r) => s + r.scoreFinal, 0) / rows.length;
-  const gols = rows.reduce((s, r) => s + (r.Golos || 0), 0);
+  const golsJogadores = rows.reduce((s, r) => s + (r.Golos || 0), 0);
+  const assistencias = rows.reduce((s, r) => s + (r.Assistências || 0), 0);
   const mins = rows.reduce((s, r) => s + r.minutos, 0);
+
+  let gols = golsJogadores;
+  let golsSub = `${fmtInt(assistencias)} assistências`;
+
+  if (state.jogo !== "all") {
+    const jogo = DATA.jogos.find((j) => dayKey(j.id) === dayKey(state.jogo));
+    if (jogo) {
+      gols = golsDoPlacar(jogo.resultado);
+      const marcados = golsDosJogadoresNoJogo(jogo.id);
+      const contra = gols - marcados;
+      golsSub = contra > 0
+        ? `${fmtInt(marcados)} dos jogadores · ${fmtInt(contra)} gol contra`
+        : `${fmtInt(assistencias)} assistências`;
+    }
+  } else if (!state.posicoes.size && !state.search.trim()) {
+    const placar = DATA.jogos.reduce((s, j) => s + golsDoPlacar(j.resultado), 0);
+    const contra = placar - golsJogadores;
+    if (contra > 0) {
+      gols = placar;
+      golsSub = `${fmtInt(golsJogadores)} dos jogadores · ${fmtInt(contra)} gol contra`;
+    }
+  }
 
   els.kpis.innerHTML = `
     <div class="kpi"><p>Melhor score</p><strong>${fmt(best.scoreFinal)}</strong><em>${best.jogador}</em></div>
     <div class="kpi"><p>Média do recorte</p><strong>${fmt(avg)}</strong><em>${rows.length} atletas</em></div>
-    <div class="kpi"><p>Gols</p><strong>${fmtInt(gols)}</strong><em>${fmtInt(rows.reduce((s, r) => s + (r.Assistências || 0), 0))} assistências</em></div>
+    <div class="kpi"><p>Gols</p><strong>${fmtInt(gols)}</strong><em>${golsSub}</em></div>
     <div class="kpi"><p>Minutos</p><strong>${fmtInt(mins)}</strong><em>${state.jogo === "all" ? "soma do período" : "neste jogo"}</em></div>
   `;
 }
