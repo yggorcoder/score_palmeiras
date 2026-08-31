@@ -1,0 +1,5172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palmeiras · Score CIGA</title>
+  <style>
+:root {
+  --pitch: #06140c;
+  --pitch-2: #0c2216;
+  --green: #1f9d55;
+  --green-bright: #3dce73;
+  --line: #1a3d2a;
+  --ink: #e8f3ea;
+  --muted: #8aa893;
+  --gold: #d4b45a;
+  --card: #0e1f16;
+  --danger: #d45b5b;
+  --radius: 14px;
+  --font: "Segoe UI", system-ui, sans-serif;
+  --cond: "Arial Narrow", "Segoe UI", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  background: var(--pitch);
+  color: var(--ink);
+  font-family: var(--font);
+}
+
+.pitch {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at top, #0f2c1c 0%, transparent 55%),
+    repeating-linear-gradient(
+      90deg,
+      transparent 0,
+      transparent 79px,
+      rgba(61, 206, 115, 0.035) 80px,
+      rgba(61, 206, 115, 0.035) 81px
+    );
+  z-index: 0;
+}
+
+body > *:not(.pitch) { position: relative; z-index: 1; }
+
+.top {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 24px;
+  padding: 28px 32px 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.brand { display: flex; gap: 14px; align-items: center; }
+
+.crest {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--cond);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  background: var(--green);
+  color: #04210f;
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 11px;
+  color: var(--gold);
+}
+
+h1 {
+  margin: 0;
+  font-family: var(--cond);
+  font-size: 42px;
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.meta { margin: 0; color: var(--muted); font-size: 14px; max-width: 420px; text-align: right; }
+
+.matches {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 16px 32px;
+}
+
+.match {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  background: var(--card);
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.match strong { font-family: var(--cond); font-size: 16px; }
+
+.match.active {
+  background: var(--green);
+  color: #04210f;
+  border-color: var(--green);
+}
+
+.match .lvl {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.match[data-result="W"] strong { color: var(--green-bright); }
+.match.active[data-result="W"] strong,
+.match.active[data-result="L"] strong,
+.match.active[data-result="D"] strong { color: inherit; }
+.match[data-result="L"] strong { color: var(--danger); }
+.match[data-result="D"] strong { color: var(--gold); }
+
+.filters {
+  display: grid;
+  grid-template-columns: 1.4fr 2fr 1fr 0.9fr 0.9fr auto;
+  gap: 16px;
+  align-items: end;
+  padding: 8px 32px 20px;
+}
+
+.filters label, .filter-block {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filters span {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+}
+
+input, select {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--ink);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font: inherit;
+}
+
+input[type="range"] { padding: 8px 0; accent-color: var(--green-bright); }
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.chip {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--ink);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.chip.active { background: var(--ink); color: var(--pitch); }
+
+.ghost {
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+  padding: 0 14px;
+}
+
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  padding: 0 32px 20px;
+}
+
+.kpi {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+}
+
+.kpi p { margin: 0; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.1em; }
+.kpi strong {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--cond);
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1;
+}
+.kpi em { font-style: normal; color: var(--green-bright); font-size: 14px; }
+
+.charts {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 16px;
+  padding: 0 32px 16px;
+}
+
+.panel {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px 18px 12px;
+}
+
+.panel-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.panel-head h2, .drawer-sheet h3 {
+  margin: 0;
+  font-family: var(--cond);
+  font-size: 22px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.panel-head p { margin: 0; color: var(--muted); font-size: 12px; }
+
+.bars { display: flex; flex-direction: column; gap: 6px; max-height: 520px; overflow: auto; }
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 28px 148px 1fr 44px;
+  gap: 8px;
+  align-items: center;
+  cursor: pointer;
+  padding: 2px 0;
+}
+
+.bar-row:hover .track { outline: 1px solid var(--green); }
+
+.bar-row .rk { color: var(--muted); font-family: var(--cond); font-size: 16px; text-align: right; }
+.bar-row .nm { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-row .nm small { display: block; color: var(--muted); font-size: 11px; }
+.bar-row .val { font-family: var(--cond); font-size: 16px; text-align: right; }
+
+.track {
+  height: 18px;
+  background: #07150e;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  width: 0;
+  border-radius: 4px;
+  transition: width 0.35s ease;
+}
+
+.scatter-wrap { display: grid; grid-template-columns: 1fr; gap: 10px; }
+#scatter { width: 100%; height: auto; }
+.axis-label { fill: var(--muted); font-size: 11px; font-family: var(--font); }
+.dot-hit { cursor: pointer; }
+.dot-hit:hover .dot { stroke: #fff; stroke-width: 2; }
+.dot-label {
+  fill: var(--ink);
+  font-size: 11px;
+  font-family: var(--font);
+  font-weight: 600;
+  paint-order: stroke;
+  stroke: #06140c;
+  stroke-width: 3px;
+  pointer-events: none;
+}
+
+.legend { display: flex; flex-direction: row; flex-wrap: wrap; gap: 8px 14px; font-size: 12px; color: var(--muted); }
+.legend i {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.table-panel { margin: 0 32px 40px; padding: 16px 0 8px; }
+.table-panel .panel-head { padding: 0 18px; }
+.table-scroll { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; white-space: nowrap; }
+th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 500; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+tbody tr { cursor: pointer; }
+tbody tr:hover { background: #143221; }
+.player-cell { display: flex; flex-direction: column; }
+.player-cell small { color: var(--muted); font-size: 11px; }
+
+.score-pill {
+  display: inline-block;
+  min-width: 42px;
+  text-align: center;
+  font-family: var(--cond);
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: 6px;
+  padding: 2px 6px;
+}
+
+.pos-tag {
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.drawer[hidden] { display: none; }
+.drawer { position: fixed; inset: 0; z-index: 20; }
+.drawer-backdrop { position: absolute; inset: 0; background: rgba(0, 0, 0, 0.55); }
+.drawer-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(420px, 100%);
+  height: 100%;
+  background: #0b1c13;
+  border-left: 1px solid var(--line);
+  padding: 28px 24px 40px;
+  overflow: auto;
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.drawer-score {
+  font-family: var(--cond);
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+  margin: 8px 0 16px;
+  color: var(--green-bright);
+}
+
+.meters { display: grid; gap: 10px; margin-bottom: 20px; }
+.meter-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 4px; }
+.meter-bar { height: 8px; background: #07150e; border-radius: 99px; overflow: hidden; }
+.meter-bar span { display: block; height: 100%; }
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.stat {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px;
+}
+.stat b { display: block; font-family: var(--cond); font-size: 22px; }
+.stat span { color: var(--muted); font-size: 11px; }
+
+.game-list { display: flex; flex-direction: column; gap: 8px; }
+.game {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 8px;
+  align-items: center;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 13px;
+}
+.game b { font-family: var(--cond); font-size: 18px; }
+
+.tooltip {
+  position: fixed;
+  z-index: 30;
+  background: #04210f;
+  border: 1px solid var(--green);
+  color: var(--ink);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 12px;
+  pointer-events: none;
+}
+
+footer {
+  padding: 8px 32px 28px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 24px;
+  text-align: center;
+}
+
+@media (max-width: 1100px) {
+  .filters { grid-template-columns: 1fr 1fr; }
+  .charts, .kpis { grid-template-columns: 1fr; }
+  .top { flex-direction: column; align-items: start; }
+  .meta { text-align: left; }
+}
+
+@media (max-width: 640px) {
+  .top, .filters, .kpis, .charts, footer { padding-left: 16px; padding-right: 16px; }
+  .table-panel { margin-left: 16px; margin-right: 16px; }
+  .matches { padding-left: 16px; }
+  .bar-row { grid-template-columns: 24px 110px 1fr 36px; }
+}
+
+</style>
+</head>
+<body>
+  <div class="pitch" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="crest">SEP</span>
+      <div>
+        <p class="kicker">Score CIGA · Brasileirão 2026</p>
+        <h1>Palmeiras</h1>
+      </div>
+    </div>
+    <p class="meta" id="metaLine"></p>
+  </header>
+
+  <section class="matches" id="matchStrip" aria-label="Filtro por jogo"></section>
+
+  <section class="filters" aria-label="Filtros">
+    <label class="search">
+      <span>Buscar</span>
+      <input id="searchInput" type="search" placeholder="Nome do jogador" autocomplete="off" />
+    </label>
+
+    <div class="filter-block">
+      <span>Posição</span>
+      <div class="chips" id="posChips"></div>
+    </div>
+
+    <label class="minutes">
+      <span>Mín. minutos <strong id="minLabel">0</strong></span>
+      <input id="minRange" type="range" min="0" max="450" step="5" value="0" />
+    </label>
+
+    <label class="select-wrap">
+      <span>Ordenar</span>
+      <select id="sortSelect">
+        <option value="scoreFinal">Score final</option>
+        <option value="notaOfensiva">Nota ofensiva</option>
+        <option value="notaDefensiva">Nota defensiva</option>
+        <option value="minutos">Minutos</option>
+        <option value="Golos">Gols</option>
+        <option value="Assistências">Assistências</option>
+        <option value="jogador">Nome</option>
+      </select>
+    </label>
+
+    <label class="select-wrap">
+      <span>Gráfico</span>
+      <select id="metricSelect">
+        <option value="scoreFinal">Score final</option>
+        <option value="notaOfensiva">Ofensivo</option>
+        <option value="notaDefensiva">Defensivo</option>
+      </select>
+    </label>
+
+    <button type="button" class="ghost" id="resetBtn">Limpar filtros</button>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="charts">
+    <article class="panel">
+      <header class="panel-head">
+        <h2 id="barTitle">Ranking por score final</h2>
+        <p>Clique na barra para abrir o atleta</p>
+      </header>
+      <div class="bars" id="bars"></div>
+    </article>
+
+    <article class="panel">
+      <header class="panel-head">
+        <h2>Ofensivo × defensivo</h2>
+        <p>Escala 0–5 · cor = posição</p>
+      </header>
+      <div class="scatter-wrap">
+        <svg id="scatter" viewBox="0 0 560 380" role="img" aria-label="Dispersão ofensivo versus defensivo"></svg>
+        <div class="legend" id="legend"></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel table-panel">
+    <header class="panel-head">
+      <h2>Elenco</h2>
+      <p id="tableHint">Notas do período de 5 jogos, normalizadas contra o elenco</p>
+    </header>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Jogador</th>
+            <th>Pos</th>
+            <th class="num" data-sort="minutos">Min</th>
+            <th class="num" data-sort="Golos">G</th>
+            <th class="num" data-sort="Assistências">A</th>
+            <th class="num" data-sort="notaOfensiva">OF</th>
+            <th class="num" data-sort="notaDefensiva">DEF</th>
+            <th class="num" data-sort="scoreFinal">Score</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="drawer" id="drawer" hidden>
+    <div class="drawer-backdrop" data-close></div>
+    <div class="drawer-sheet" role="dialog" aria-modal="true" aria-labelledby="drawerName">
+      <button type="button" class="close" data-close aria-label="Fechar">×</button>
+      <p class="kicker" id="drawerPos"></p>
+      <h2 id="drawerName"></h2>
+      <div class="drawer-score" id="drawerScore"></div>
+      <div class="meters" id="drawerMeters"></div>
+      <div class="stat-grid" id="drawerStats"></div>
+      <h3>Por jogo</h3>
+      <div class="game-list" id="drawerGames"></div>
+    </div>
+  </aside>
+
+  <footer>
+    <p>Modelo Score CIGA · pesos ofensivos e defensivos por posição · goleiros fora da escala</p>
+  </footer>
+
+  <div class="tooltip" id="tooltip" hidden></div>
+
+  <script>
+window.DASHBOARD_DATA = {
+  "meta": {
+    "time": "Palmeiras",
+    "competicao": "Brasileirão 2026",
+    "janela": "Últimos 5 jogos",
+    "fonte": "FotMob / Opta · modelo Score CIGA",
+    "escala": "Notas 0–5 normalizadas contra o elenco (sem goleiros)"
+  },
+  "jogos": [
+    {
+      "id": "2026-07-29",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3
+    },
+    {
+      "id": "2026-08-09",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2
+    },
+    {
+      "id": "2026-08-15",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5
+    },
+    {
+      "id": "2026-08-23",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2
+    },
+    {
+      "id": "2026-08-30",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2
+    }
+  ],
+  "players": [
+    {
+      "jogador": "Emiliano Martínez",
+      "posicao": "Volante",
+      "minutos": 158,
+      "nivel": 3.0,
+      "jogos": 4,
+      "notaOfensiva": 4.99,
+      "notaDefensiva": 5.0,
+      "rankOfensivo": 2,
+      "rankDefensivo": 1,
+      "scoreFinal": 4.99,
+      "scoreOfBruto": 24.76,
+      "scoreDefBruto": 7.47,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.22,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 124.0,
+      "Passes certos": 116.0,
+      "Cruzamentos": 3.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 2.0,
+      "Duelos": 22.0,
+      "Duelos certos": 15.0,
+      "Perdas (total)": 9.0,
+      "Recuperações (total)": 11.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 5.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 7.0,
+      "Remates bloqueados": 2.0,
+      "Interceções": 4.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 4.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Lucas Evangelista",
+      "posicao": "Volante",
+      "minutos": 45,
+      "nivel": 2.5,
+      "jogos": 2,
+      "notaOfensiva": 5.0,
+      "notaDefensiva": 2.3,
+      "rankOfensivo": 1,
+      "rankDefensivo": 2,
+      "scoreFinal": 3.65,
+      "scoreOfBruto": 8.48,
+      "scoreDefBruto": 1.5,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.07,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 44.0,
+      "Passes certos": 39.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 4.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 5.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Murilo",
+      "posicao": "Zagueiro",
+      "minutos": 405,
+      "nivel": 2.8,
+      "jogos": 5,
+      "notaOfensiva": 4.49,
+      "notaDefensiva": 2.33,
+      "rankOfensivo": 1,
+      "rankDefensivo": 3,
+      "scoreFinal": 3.41,
+      "scoreOfBruto": 62.08,
+      "scoreDefBruto": 12.13,
+      "Golos": 0.0,
+      "xG": 0.15,
+      "Assistências": 0.0,
+      "xA": 0.16,
+      "Remates": 3.0,
+      "Remates no alvo": 1.0,
+      "Passes": 271.0,
+      "Passes certos": 229.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 42.0,
+      "Duelos certos": 21.0,
+      "Perdas (total)": 43.0,
+      "Recuperações (total)": 14.0,
+      "Toques na área": 5.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 7.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 22.0,
+      "Remates bloqueados": 2.0,
+      "Interceções": 9.0,
+      "Alívios (Clearances)": 18.0,
+      "Faltas cometidas": 7.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Gustavo Gómez",
+      "posicao": "Zagueiro",
+      "minutos": 315,
+      "nivel": 3.0,
+      "jogos": 4,
+      "notaOfensiva": 3.77,
+      "notaDefensiva": 2.68,
+      "rankOfensivo": 2,
+      "rankDefensivo": 1,
+      "scoreFinal": 3.22,
+      "scoreOfBruto": 38.88,
+      "scoreDefBruto": 9.61,
+      "Golos": 1.0,
+      "xG": 0.5,
+      "Assistências": 1.0,
+      "xA": 0.16,
+      "Remates": 4.0,
+      "Remates no alvo": 2.0,
+      "Passes": 164.0,
+      "Passes certos": 145.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 28.0,
+      "Duelos certos": 14.0,
+      "Perdas (total)": 21.0,
+      "Recuperações (total)": 11.0,
+      "Toques na área": 6.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 4.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 17.0,
+      "Remates bloqueados": 2.0,
+      "Interceções": 5.0,
+      "Alívios (Clearances)": 18.0,
+      "Faltas cometidas": 6.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Alexander Barboza",
+      "posicao": "Zagueiro",
+      "minutos": 200,
+      "nivel": 2.33,
+      "jogos": 3,
+      "notaOfensiva": 3.18,
+      "notaDefensiva": 2.44,
+      "rankOfensivo": 3,
+      "rankDefensivo": 2,
+      "scoreFinal": 2.81,
+      "scoreOfBruto": 27.65,
+      "scoreDefBruto": 7.39,
+      "Golos": 0.0,
+      "xG": 0.05,
+      "Assistências": 0.0,
+      "xA": 0.07,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 120.0,
+      "Passes certos": 101.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 29.0,
+      "Duelos certos": 15.0,
+      "Perdas (total)": 20.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 7.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 16.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 5.0,
+      "Alívios (Clearances)": 8.0,
+      "Faltas cometidas": 4.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Felipe Anderson",
+      "posicao": "Extremo",
+      "minutos": 112,
+      "nivel": 2.75,
+      "jogos": 4,
+      "notaOfensiva": 0.67,
+      "notaDefensiva": 4.53,
+      "rankOfensivo": 1,
+      "rankDefensivo": 2,
+      "scoreFinal": 2.6,
+      "scoreOfBruto": 4.75,
+      "scoreDefBruto": 5.36,
+      "Golos": 0.0,
+      "xG": 0.04,
+      "Assistências": 0.0,
+      "xA": 0.06,
+      "Remates": 2.0,
+      "Remates no alvo": 0.0,
+      "Passes": 73.0,
+      "Passes certos": 62.0,
+      "Cruzamentos": 4.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 7.0,
+      "Dribles certos": 4.0,
+      "Duelos": 21.0,
+      "Duelos certos": 10.0,
+      "Perdas (total)": 18.0,
+      "Recuperações (total)": 10.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 7.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 2.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Jhon Arias",
+      "posicao": "Extremo",
+      "minutos": 257,
+      "nivel": 3.0,
+      "jogos": 4,
+      "notaOfensiva": 0.49,
+      "notaDefensiva": 4.6,
+      "rankOfensivo": 2,
+      "rankDefensivo": 1,
+      "scoreFinal": 2.55,
+      "scoreOfBruto": 8.79,
+      "scoreDefBruto": 11.41,
+      "Golos": 1.0,
+      "xG": 0.52,
+      "Assistências": 2.0,
+      "xA": 0.26,
+      "Remates": 7.0,
+      "Remates no alvo": 2.0,
+      "Passes": 111.0,
+      "Passes certos": 103.0,
+      "Cruzamentos": 9.0,
+      "Cruzamentos certos": 2.0,
+      "Dribles": 9.0,
+      "Dribles certos": 2.0,
+      "Duelos": 45.0,
+      "Duelos certos": 22.0,
+      "Perdas (total)": 18.0,
+      "Recuperações (total)": 18.0,
+      "Toques na área": 8.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 8.0,
+      "Duelos ofensivos": 9.0,
+      "Duelos aéreos": 3.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 7.0,
+      "Faltas sofridas": 10.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "José Manuel López",
+      "posicao": "Centroavante",
+      "minutos": 347,
+      "nivel": 2.8,
+      "jogos": 5,
+      "notaOfensiva": 0.31,
+      "notaDefensiva": 4.73,
+      "rankOfensivo": 1,
+      "rankDefensivo": 1,
+      "scoreFinal": 2.52,
+      "scoreOfBruto": 10.83,
+      "scoreDefBruto": 16.84,
+      "Golos": 2.0,
+      "xG": 0.52,
+      "Assistências": 1.0,
+      "xA": 0.49,
+      "Remates": 9.0,
+      "Remates no alvo": 3.0,
+      "Passes": 98.0,
+      "Passes certos": 71.0,
+      "Cruzamentos": 4.0,
+      "Cruzamentos certos": 2.0,
+      "Dribles": 14.0,
+      "Dribles certos": 8.0,
+      "Duelos": 66.0,
+      "Duelos certos": 37.0,
+      "Perdas (total)": 39.0,
+      "Recuperações (total)": 10.0,
+      "Toques na área": 25.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 8.0,
+      "Duelos ofensivos": 14.0,
+      "Duelos aéreos": 24.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 5.0,
+      "Faltas cometidas": 3.0,
+      "Faltas sofridas": 9.0,
+      "Passes decisivos": 5.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 5.0
+    },
+    {
+      "jogador": "Arthur",
+      "posicao": "Lateral Esquerdo",
+      "minutos": 225,
+      "nivel": 3.0,
+      "jogos": 3,
+      "notaOfensiva": 1.19,
+      "notaDefensiva": 3.27,
+      "rankOfensivo": 2,
+      "rankDefensivo": 1,
+      "scoreFinal": 2.23,
+      "scoreOfBruto": 11.99,
+      "scoreDefBruto": 7.82,
+      "Golos": 0.0,
+      "xG": 0.02,
+      "Assistências": 0.0,
+      "xA": 0.08,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 101.0,
+      "Passes certos": 82.0,
+      "Cruzamentos": 7.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 3.0,
+      "Dribles certos": 1.0,
+      "Duelos": 30.0,
+      "Duelos certos": 15.0,
+      "Perdas (total)": 23.0,
+      "Recuperações (total)": 13.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 3.0,
+      "Cartões vermelhos": 1.0,
+      "Duelos defensivos": 6.0,
+      "Duelos ofensivos": 3.0,
+      "Duelos aéreos": 7.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 6.0,
+      "Alívios (Clearances)": 7.0,
+      "Faltas cometidas": 5.0,
+      "Faltas sofridas": 4.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Marlon Freitas",
+      "posicao": "Volante",
+      "minutos": 386,
+      "nivel": 2.8,
+      "jogos": 5,
+      "notaOfensiva": 3.94,
+      "notaDefensiva": 0.45,
+      "rankOfensivo": 3,
+      "rankDefensivo": 3,
+      "scoreFinal": 2.19,
+      "scoreOfBruto": 52.97,
+      "scoreDefBruto": 5.94,
+      "Golos": 0.0,
+      "xG": 0.32,
+      "Assistências": 0.0,
+      "xA": 0.27,
+      "Remates": 4.0,
+      "Remates no alvo": 0.0,
+      "Passes": 275.0,
+      "Passes certos": 246.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 2.0,
+      "Duelos": 17.0,
+      "Duelos certos": 7.0,
+      "Perdas (total)": 29.0,
+      "Recuperações (total)": 15.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 2.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 9.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 6.0,
+      "Alívios (Clearances)": 11.0,
+      "Faltas cometidas": 4.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 6.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 6.0
+    },
+    {
+      "jogador": "Vitor Roque",
+      "posicao": "Centroavante",
+      "minutos": 233,
+      "nivel": 2.8,
+      "jogos": 5,
+      "notaOfensiva": 0.03,
+      "notaDefensiva": 3.97,
+      "rankOfensivo": 2,
+      "rankDefensivo": 2,
+      "scoreFinal": 2.0,
+      "scoreOfBruto": 5.36,
+      "scoreDefBruto": 9.94,
+      "Golos": 1.0,
+      "xG": 1.5,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 9.0,
+      "Remates no alvo": 4.0,
+      "Passes": 39.0,
+      "Passes certos": 31.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 4.0,
+      "Dribles certos": 1.0,
+      "Duelos": 45.0,
+      "Duelos certos": 17.0,
+      "Perdas (total)": 16.0,
+      "Recuperações (total)": 5.0,
+      "Toques na área": 13.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 4.0,
+      "Duelos ofensivos": 4.0,
+      "Duelos aéreos": 16.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 4.0,
+      "Faltas sofridas": 10.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Joaquín Piquerez",
+      "posicao": "Lateral Esquerdo",
+      "minutos": 225,
+      "nivel": 3.33,
+      "jogos": 3,
+      "notaOfensiva": 2.41,
+      "notaDefensiva": 1.58,
+      "rankOfensivo": 1,
+      "rankDefensivo": 2,
+      "scoreFinal": 1.99,
+      "scoreOfBruto": 17.5,
+      "scoreDefBruto": 4.56,
+      "Golos": 0.0,
+      "xG": 0.18,
+      "Assistências": 2.0,
+      "xA": 0.66,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 134.0,
+      "Passes certos": 117.0,
+      "Cruzamentos": 7.0,
+      "Cruzamentos certos": 4.0,
+      "Dribles": 6.0,
+      "Dribles certos": 1.0,
+      "Duelos": 17.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 23.0,
+      "Recuperações (total)": 16.0,
+      "Toques na área": 6.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 6.0,
+      "Duelos aéreos": 4.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 6.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 6.0
+    },
+    {
+      "jogador": "Ramón Sosa",
+      "posicao": "Extremo",
+      "minutos": 183,
+      "nivel": 3.33,
+      "jogos": 3,
+      "notaOfensiva": 0.16,
+      "notaDefensiva": 3.2,
+      "rankOfensivo": 3,
+      "rankDefensivo": 3,
+      "scoreFinal": 1.68,
+      "scoreOfBruto": 4.12,
+      "scoreDefBruto": 5.64,
+      "Golos": 1.0,
+      "xG": 0.44,
+      "Assistências": 0.0,
+      "xA": 0.1,
+      "Remates": 6.0,
+      "Remates no alvo": 1.0,
+      "Passes": 49.0,
+      "Passes certos": 39.0,
+      "Cruzamentos": 4.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 4.0,
+      "Dribles certos": 2.0,
+      "Duelos": 22.0,
+      "Duelos certos": 15.0,
+      "Perdas (total)": 13.0,
+      "Recuperações (total)": 6.0,
+      "Toques na área": 9.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 4.0,
+      "Duelos aéreos": 8.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 3.0,
+      "Faltas sofridas": 5.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Agustín Giay",
+      "posicao": "Lateral Direito",
+      "minutos": 276,
+      "nivel": 2.75,
+      "jogos": 4,
+      "notaOfensiva": 1.55,
+      "notaDefensiva": 1.34,
+      "rankOfensivo": 1,
+      "rankDefensivo": 1,
+      "scoreFinal": 1.44,
+      "scoreOfBruto": 18.98,
+      "scoreDefBruto": 6.26,
+      "Golos": 0.0,
+      "xG": 0.06,
+      "Assistências": 0.0,
+      "xA": 0.13,
+      "Remates": 2.0,
+      "Remates no alvo": 0.0,
+      "Passes": 154.0,
+      "Passes certos": 132.0,
+      "Cruzamentos": 8.0,
+      "Cruzamentos certos": 3.0,
+      "Dribles": 4.0,
+      "Dribles certos": 2.0,
+      "Duelos": 28.0,
+      "Duelos certos": 19.0,
+      "Perdas (total)": 26.0,
+      "Recuperações (total)": 10.0,
+      "Toques na área": 8.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 5.0,
+      "Duelos ofensivos": 4.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 4.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 12.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Andreas Pereira",
+      "posicao": "Meia",
+      "minutos": 433,
+      "nivel": 2.8,
+      "jogos": 5,
+      "notaOfensiva": 1.91,
+      "notaDefensiva": 0.44,
+      "rankOfensivo": 1,
+      "rankDefensivo": 2,
+      "scoreFinal": 1.17,
+      "scoreOfBruto": 33.73,
+      "scoreDefBruto": 6.63,
+      "Golos": 0.0,
+      "xG": 0.31,
+      "Assistências": 1.0,
+      "xA": 1.05,
+      "Remates": 8.0,
+      "Remates no alvo": 0.0,
+      "Passes": 269.0,
+      "Passes certos": 231.0,
+      "Cruzamentos": 42.0,
+      "Cruzamentos certos": 13.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 28.0,
+      "Duelos certos": 13.0,
+      "Perdas (total)": 44.0,
+      "Recuperações (total)": 17.0,
+      "Toques na área": 7.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 6.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 3.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 2.0,
+      "Alívios (Clearances)": 5.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 6.0,
+      "Passes decisivos": 13.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 13.0
+    },
+    {
+      "jogador": "Allan",
+      "posicao": "Meia",
+      "minutos": 328,
+      "nivel": 3.0,
+      "jogos": 4,
+      "notaOfensiva": 0.98,
+      "notaDefensiva": 1.28,
+      "rankOfensivo": 3,
+      "rankDefensivo": 1,
+      "scoreFinal": 1.13,
+      "scoreOfBruto": 15.52,
+      "scoreDefBruto": 6.69,
+      "Golos": 0.0,
+      "xG": 0.45,
+      "Assistências": 1.0,
+      "xA": 0.3,
+      "Remates": 9.0,
+      "Remates no alvo": 3.0,
+      "Passes": 106.0,
+      "Passes certos": 91.0,
+      "Cruzamentos": 4.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 15.0,
+      "Dribles certos": 9.0,
+      "Duelos": 38.0,
+      "Duelos certos": 19.0,
+      "Perdas (total)": 26.0,
+      "Recuperações (total)": 9.0,
+      "Toques na área": 8.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 4.0,
+      "Duelos ofensivos": 15.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 4.0,
+      "Faltas cometidas": 6.0,
+      "Faltas sofridas": 5.0,
+      "Passes decisivos": 6.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 6.0
+    },
+    {
+      "jogador": "Heittor",
+      "posicao": "Centroavante",
+      "minutos": 3,
+      "nivel": 2.0,
+      "jogos": 1,
+      "notaOfensiva": 0.0,
+      "notaDefensiva": 1.78,
+      "rankOfensivo": 3,
+      "rankDefensivo": 3,
+      "scoreFinal": 0.89,
+      "scoreOfBruto": 0.62,
+      "scoreDefBruto": 0.72,
+      "Golos": 0.0,
+      "xG": 0.01,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 5.0,
+      "Passes certos": 3.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Khellven",
+      "posicao": "Lateral Direito",
+      "minutos": 72,
+      "nivel": 2.33,
+      "jogos": 3,
+      "notaOfensiva": 1.44,
+      "notaDefensiva": 0.0,
+      "rankOfensivo": 2,
+      "rankDefensivo": 2,
+      "scoreFinal": 0.72,
+      "scoreOfBruto": 5.54,
+      "scoreDefBruto": 1.03,
+      "Golos": 0.0,
+      "xG": 0.12,
+      "Assistências": 0.0,
+      "xA": 0.37,
+      "Remates": 2.0,
+      "Remates no alvo": 0.0,
+      "Passes": 44.0,
+      "Passes certos": 39.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 1.0,
+      "Duelos": 5.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Mauricio",
+      "posicao": "Meia",
+      "minutos": 297,
+      "nivel": 2.8,
+      "jogos": 5,
+      "notaOfensiva": 0.98,
+      "notaDefensiva": 0.11,
+      "rankOfensivo": 2,
+      "rankDefensivo": 3,
+      "scoreFinal": 0.54,
+      "scoreOfBruto": 15.07,
+      "scoreDefBruto": 3.8,
+      "Golos": 4.0,
+      "xG": 1.66,
+      "Assistências": 0.0,
+      "xA": 0.43,
+      "Remates": 11.0,
+      "Remates no alvo": 6.0,
+      "Passes": 116.0,
+      "Passes certos": 96.0,
+      "Cruzamentos": 6.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 2.0,
+      "Dribles certos": 1.0,
+      "Duelos": 25.0,
+      "Duelos certos": 7.0,
+      "Perdas (total)": 25.0,
+      "Recuperações (total)": 8.0,
+      "Toques na área": 9.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 8.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 4.0,
+      "Faltas sofridas": 5.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    }
+  ],
+  "performances": [
+    {
+      "jogador": "Allan",
+      "posicao": "Meia",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 90,
+      "scoreOfAjustado": 0.1203,
+      "scoreDefAjustado": 0.041,
+      "scoreAjustado": 0.0806,
+      "Golos": 0.0,
+      "xG": 0.07,
+      "Assistências": 0.0,
+      "xA": 0.16,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 26.0,
+      "Passes certos": 25.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 6.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Andreas Pereira",
+      "posicao": "Meia",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 90,
+      "scoreOfAjustado": 0.214,
+      "scoreDefAjustado": 0.06,
+      "scoreAjustado": 0.137,
+      "Golos": 0.0,
+      "xG": 0.09,
+      "Assistências": 0.0,
+      "xA": 0.17,
+      "Remates": 3.0,
+      "Remates no alvo": 0.0,
+      "Passes": 49.0,
+      "Passes certos": 45.0,
+      "Cruzamentos": 6.0,
+      "Cruzamentos certos": 2.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Joaquín Piquerez",
+      "posicao": "Lateral Esquerdo",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 90,
+      "scoreOfAjustado": 0.2572,
+      "scoreDefAjustado": 0.052,
+      "scoreAjustado": 0.1546,
+      "Golos": 0.0,
+      "xG": 0.18,
+      "Assistências": 1.0,
+      "xA": 0.47,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 58.0,
+      "Passes certos": 54.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 4.0,
+      "Dribles certos": 0.0,
+      "Duelos": 10.0,
+      "Duelos certos": 0.0,
+      "Perdas (total)": 9.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 4.0,
+      "Duelos aéreos": 4.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Murilo",
+      "posicao": "Zagueiro",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 90,
+      "scoreOfAjustado": 0.5201,
+      "scoreDefAjustado": 0.12,
+      "scoreAjustado": 0.3201,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.09,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 66.0,
+      "Passes certos": 59.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 11.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 6.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 7.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 6.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Ramón Sosa",
+      "posicao": "Extremo",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 90,
+      "scoreOfAjustado": 0.07,
+      "scoreDefAjustado": 0.0787,
+      "scoreAjustado": 0.0744,
+      "Golos": 1.0,
+      "xG": 0.33,
+      "Assistências": 0.0,
+      "xA": 0.07,
+      "Remates": 4.0,
+      "Remates no alvo": 1.0,
+      "Passes": 27.0,
+      "Passes certos": 24.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 9.0,
+      "Duelos certos": 6.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 3.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Jhon Arias",
+      "posicao": "Extremo",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 74,
+      "scoreOfAjustado": 0.1274,
+      "scoreDefAjustado": 0.1159,
+      "scoreAjustado": 0.1217,
+      "Golos": 1.0,
+      "xG": 0.4,
+      "Assistências": 1.0,
+      "xA": 0.16,
+      "Remates": 3.0,
+      "Remates no alvo": 2.0,
+      "Passes": 37.0,
+      "Passes certos": 37.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 3.0,
+      "Dribles certos": 1.0,
+      "Duelos": 9.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 7.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 3.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Alexander Barboza",
+      "posicao": "Zagueiro",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 65,
+      "scoreOfAjustado": 0.3365,
+      "scoreDefAjustado": 0.1062,
+      "scoreAjustado": 0.2213,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 32.0,
+      "Passes certos": 27.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 9.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 6.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 4.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Emiliano Martínez",
+      "posicao": "Volante",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 45,
+      "scoreOfAjustado": 0.5215,
+      "scoreDefAjustado": 0.0573,
+      "scoreAjustado": 0.2894,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.03,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 39.0,
+      "Passes certos": 38.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 5.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Gustavo Gómez",
+      "posicao": "Zagueiro",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 45,
+      "scoreOfAjustado": 0.3467,
+      "scoreDefAjustado": 0.0733,
+      "scoreAjustado": 0.21,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 22.0,
+      "Passes certos": 20.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 4.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 4.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "José Manuel López",
+      "posicao": "Centroavante",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 45,
+      "scoreOfAjustado": 0.0661,
+      "scoreDefAjustado": 0.102,
+      "scoreAjustado": 0.0841,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.04,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 13.0,
+      "Passes certos": 9.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 7.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 6.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Khellven",
+      "posicao": "Lateral Direito",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 45,
+      "scoreOfAjustado": 0.248,
+      "scoreDefAjustado": 0.0007,
+      "scoreAjustado": 0.1243,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.37,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 30.0,
+      "Passes certos": 28.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 0.0,
+      "Duelos certos": 0.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Marlon Freitas",
+      "posicao": "Volante",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 45,
+      "scoreOfAjustado": 0.553,
+      "scoreDefAjustado": 0.0433,
+      "scoreAjustado": 0.2982,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.09,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 43.0,
+      "Passes certos": 39.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 4.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 4.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Mauricio",
+      "posicao": "Meia",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 45,
+      "scoreOfAjustado": 0.2082,
+      "scoreDefAjustado": 0.0187,
+      "scoreAjustado": 0.1134,
+      "Golos": 1.0,
+      "xG": 0.14,
+      "Assistências": 0.0,
+      "xA": 0.05,
+      "Remates": 3.0,
+      "Remates no alvo": 2.0,
+      "Passes": 23.0,
+      "Passes certos": 20.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 1.0,
+      "Duelos": 4.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 4.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Lucas Evangelista",
+      "posicao": "Volante",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 25,
+      "scoreOfAjustado": 0.8081,
+      "scoreDefAjustado": 0.1536,
+      "scoreAjustado": 0.4809,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.07,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 34.0,
+      "Passes certos": 32.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 5.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Vitor Roque",
+      "posicao": "Centroavante",
+      "data": "2026-07-29",
+      "adversario": "Vitória",
+      "local": "Fora",
+      "resultado": "4-0",
+      "nivel": 3,
+      "minutos": 16,
+      "scoreOfAjustado": 0.0826,
+      "scoreDefAjustado": 0.051,
+      "scoreAjustado": 0.0668,
+      "Golos": 0.0,
+      "xG": 0.17,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 4.0,
+      "Passes certos": 3.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 4.0,
+      "Duelos certos": 0.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Alexander Barboza",
+      "posicao": "Zagueiro",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.3147,
+      "scoreDefAjustado": 0.0807,
+      "scoreAjustado": 0.1977,
+      "Golos": 0.0,
+      "xG": 0.05,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 61.0,
+      "Passes certos": 52.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 14.0,
+      "Duelos certos": 8.0,
+      "Perdas (total)": 9.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 4.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 8.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 4.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Andreas Pereira",
+      "posicao": "Meia",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.1973,
+      "scoreDefAjustado": 0.0373,
+      "scoreAjustado": 0.1173,
+      "Golos": 0.0,
+      "xG": 0.22,
+      "Assistências": 0.0,
+      "xA": 0.19,
+      "Remates": 5.0,
+      "Remates no alvo": 0.0,
+      "Passes": 67.0,
+      "Passes certos": 59.0,
+      "Cruzamentos": 12.0,
+      "Cruzamentos certos": 5.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 9.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 10.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 6.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Jhon Arias",
+      "posicao": "Extremo",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.0704,
+      "scoreDefAjustado": 0.1122,
+      "scoreAjustado": 0.0913,
+      "Golos": 0.0,
+      "xG": 0.03,
+      "Assistências": 0.0,
+      "xA": 0.08,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 46.0,
+      "Passes certos": 39.0,
+      "Cruzamentos": 9.0,
+      "Cruzamentos certos": 2.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 14.0,
+      "Duelos certos": 11.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 8.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 4.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 3.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 4.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Joaquín Piquerez",
+      "posicao": "Lateral Esquerdo",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.17,
+      "scoreDefAjustado": 0.0302,
+      "scoreAjustado": 0.1001,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.14,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 61.0,
+      "Passes certos": 50.0,
+      "Cruzamentos": 5.0,
+      "Cruzamentos certos": 3.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 1.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 11.0,
+      "Recuperações (total)": 9.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Marlon Freitas",
+      "posicao": "Volante",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.2922,
+      "scoreDefAjustado": 0.0207,
+      "scoreAjustado": 0.1564,
+      "Golos": 0.0,
+      "xG": 0.15,
+      "Assistências": 0.0,
+      "xA": 0.09,
+      "Remates": 3.0,
+      "Remates no alvo": 0.0,
+      "Passes": 70.0,
+      "Passes certos": 59.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 4.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 11.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Murilo",
+      "posicao": "Zagueiro",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.3679,
+      "scoreDefAjustado": 0.0824,
+      "scoreAjustado": 0.2252,
+      "Golos": 0.0,
+      "xG": 0.05,
+      "Assistências": 0.0,
+      "xA": 0.05,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 74.0,
+      "Passes certos": 60.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 14.0,
+      "Duelos certos": 6.0,
+      "Perdas (total)": 15.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 9.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 5.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Allan",
+      "posicao": "Meia",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 77,
+      "scoreOfAjustado": 0.1047,
+      "scoreDefAjustado": 0.0314,
+      "scoreAjustado": 0.068,
+      "Golos": 0.0,
+      "xG": 0.24,
+      "Assistências": 0.0,
+      "xA": 0.06,
+      "Remates": 5.0,
+      "Remates no alvo": 1.0,
+      "Passes": 29.0,
+      "Passes certos": 23.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 1.0,
+      "Duelos": 8.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 8.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Emiliano Martínez",
+      "posicao": "Volante",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 77,
+      "scoreOfAjustado": 0.2617,
+      "scoreDefAjustado": 0.1239,
+      "scoreAjustado": 0.1928,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.09,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 51.0,
+      "Passes certos": 46.0,
+      "Cruzamentos": 3.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 13.0,
+      "Duelos certos": 10.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 4.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 6.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 4.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Mauricio",
+      "posicao": "Meia",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 58,
+      "scoreOfAjustado": 0.081,
+      "scoreDefAjustado": 0.041,
+      "scoreAjustado": 0.061,
+      "Golos": 0.0,
+      "xG": 0.11,
+      "Assistências": 0.0,
+      "xA": 0.03,
+      "Remates": 1.0,
+      "Remates no alvo": 1.0,
+      "Passes": 18.0,
+      "Passes certos": 15.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Ramón Sosa",
+      "posicao": "Extremo",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 58,
+      "scoreOfAjustado": 0.0331,
+      "scoreDefAjustado": 0.0231,
+      "scoreAjustado": 0.0281,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 15.0,
+      "Passes certos": 10.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 4.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 6.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "José Manuel López",
+      "posicao": "Centroavante",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 32,
+      "scoreOfAjustado": 0.0605,
+      "scoreDefAjustado": 0.1806,
+      "scoreAjustado": 0.1205,
+      "Golos": 0.0,
+      "xG": 0.05,
+      "Assistências": 0.0,
+      "xA": 0.03,
+      "Remates": 2.0,
+      "Remates no alvo": 0.0,
+      "Passes": 9.0,
+      "Passes certos": 5.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 11.0,
+      "Duelos certos": 6.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 8.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Vitor Roque",
+      "posicao": "Centroavante",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 32,
+      "scoreOfAjustado": 0.0444,
+      "scoreDefAjustado": 0.0462,
+      "scoreAjustado": 0.0453,
+      "Golos": 0.0,
+      "xG": 0.17,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 2.0,
+      "Remates no alvo": 1.0,
+      "Passes": 6.0,
+      "Passes certos": 3.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 3.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Agustín Giay",
+      "posicao": "Lateral Direito",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 13,
+      "scoreOfAjustado": 0.2572,
+      "scoreDefAjustado": 0.065,
+      "scoreAjustado": 0.1611,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 19.0,
+      "Passes certos": 16.0,
+      "Cruzamentos": 3.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 1.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Felipe Anderson",
+      "posicao": "Extremo",
+      "data": "2026-08-09",
+      "adversario": "Internacional",
+      "local": "Casa",
+      "resultado": "0-0",
+      "nivel": 2,
+      "minutos": 13,
+      "scoreOfAjustado": 0.0583,
+      "scoreDefAjustado": 0.032,
+      "scoreAjustado": 0.0452,
+      "Golos": 0.0,
+      "xG": 0.02,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 5.0,
+      "Passes certos": 5.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 1.0,
+      "Duelos": 3.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Agustín Giay",
+      "posicao": "Lateral Direito",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 90,
+      "scoreOfAjustado": 0.2212,
+      "scoreDefAjustado": 0.0794,
+      "scoreAjustado": 0.1503,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 32.0,
+      "Passes certos": 27.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 8.0,
+      "Duelos certos": 5.0,
+      "Perdas (total)": 6.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 4.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Allan",
+      "posicao": "Meia",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 90,
+      "scoreOfAjustado": 0.2095,
+      "scoreDefAjustado": 0.1778,
+      "scoreAjustado": 0.1937,
+      "Golos": 0.0,
+      "xG": 0.12,
+      "Assistências": 0.0,
+      "xA": 0.05,
+      "Remates": 2.0,
+      "Remates no alvo": 2.0,
+      "Passes": 24.0,
+      "Passes certos": 18.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 7.0,
+      "Dribles certos": 5.0,
+      "Duelos": 14.0,
+      "Duelos certos": 9.0,
+      "Perdas (total)": 8.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 7.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Gustavo Gómez",
+      "posicao": "Zagueiro",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 90,
+      "scoreOfAjustado": 0.3608,
+      "scoreDefAjustado": 0.1906,
+      "scoreAjustado": 0.2757,
+      "Golos": 1.0,
+      "xG": 0.05,
+      "Assistências": 0.0,
+      "xA": 0.03,
+      "Remates": 2.0,
+      "Remates no alvo": 1.0,
+      "Passes": 29.0,
+      "Passes certos": 22.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 11.0,
+      "Duelos certos": 6.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 5.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 2.0,
+      "Alívios (Clearances)": 8.0,
+      "Faltas cometidas": 4.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "José Manuel López",
+      "posicao": "Centroavante",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 90,
+      "scoreOfAjustado": 0.1855,
+      "scoreDefAjustado": 0.2372,
+      "scoreAjustado": 0.2113,
+      "Golos": 0.0,
+      "xG": 0.02,
+      "Assistências": 1.0,
+      "xA": 0.32,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 25.0,
+      "Passes certos": 19.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 6.0,
+      "Dribles certos": 4.0,
+      "Duelos": 16.0,
+      "Duelos certos": 11.0,
+      "Perdas (total)": 8.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 9.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 6.0,
+      "Duelos aéreos": 5.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Marlon Freitas",
+      "posicao": "Volante",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 90,
+      "scoreOfAjustado": 0.6029,
+      "scoreDefAjustado": 0.1033,
+      "scoreAjustado": 0.3531,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.03,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 56.0,
+      "Passes certos": 50.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 2.0,
+      "Duelos": 4.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 6.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 4.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Murilo",
+      "posicao": "Zagueiro",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 90,
+      "scoreOfAjustado": 0.2992,
+      "scoreDefAjustado": 0.1383,
+      "scoreAjustado": 0.2188,
+      "Golos": 0.0,
+      "xG": 0.1,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 2.0,
+      "Remates no alvo": 1.0,
+      "Passes": 25.0,
+      "Passes certos": 18.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 10.0,
+      "Duelos certos": 5.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 5.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 3.0,
+      "Alívios (Clearances)": 4.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Andreas Pereira",
+      "posicao": "Meia",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 73,
+      "scoreOfAjustado": 0.304,
+      "scoreDefAjustado": 0.0788,
+      "scoreAjustado": 0.1914,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.43,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 32.0,
+      "Passes certos": 31.0,
+      "Cruzamentos": 6.0,
+      "Cruzamentos certos": 3.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 0.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Jhon Arias",
+      "posicao": "Extremo",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 73,
+      "scoreOfAjustado": 0.0985,
+      "scoreDefAjustado": 0.1644,
+      "scoreAjustado": 0.1314,
+      "Golos": 0.0,
+      "xG": 0.09,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 3.0,
+      "Remates no alvo": 0.0,
+      "Passes": 13.0,
+      "Passes certos": 12.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 5.0,
+      "Dribles certos": 0.0,
+      "Duelos": 16.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 5.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 5.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Arthur",
+      "posicao": "Lateral Esquerdo",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 45,
+      "scoreOfAjustado": 0.1791,
+      "scoreDefAjustado": 0.1978,
+      "scoreAjustado": 0.1884,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 12.0,
+      "Passes certos": 10.0,
+      "Cruzamentos": 3.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 4.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Joaquín Piquerez",
+      "posicao": "Lateral Esquerdo",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 45,
+      "scoreOfAjustado": 0.2371,
+      "scoreDefAjustado": 0.1822,
+      "scoreAjustado": 0.2097,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 1.0,
+      "xA": 0.05,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 15.0,
+      "Passes certos": 13.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Vitor Roque",
+      "posicao": "Centroavante",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 45,
+      "scoreOfAjustado": 0.086,
+      "scoreDefAjustado": 0.2033,
+      "scoreAjustado": 0.1447,
+      "Golos": 0.0,
+      "xG": 0.12,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 1.0,
+      "Remates no alvo": 1.0,
+      "Passes": 7.0,
+      "Passes certos": 6.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 0.0,
+      "Duelos": 10.0,
+      "Duelos certos": 0.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 4.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Ramón Sosa",
+      "posicao": "Extremo",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 35,
+      "scoreOfAjustado": 0.1515,
+      "scoreDefAjustado": 0.3729,
+      "scoreAjustado": 0.2622,
+      "Golos": 0.0,
+      "xG": 0.11,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 2.0,
+      "Remates no alvo": 0.0,
+      "Passes": 7.0,
+      "Passes certos": 5.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 2.0,
+      "Dribles certos": 2.0,
+      "Duelos": 9.0,
+      "Duelos certos": 7.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 3.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Emiliano Martínez",
+      "posicao": "Volante",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 17,
+      "scoreOfAjustado": 0.3215,
+      "scoreDefAjustado": 0.1525,
+      "scoreAjustado": 0.237,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.1,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 6.0,
+      "Passes certos": 5.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 1.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 1.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Mauricio",
+      "posicao": "Meia",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 17,
+      "scoreOfAjustado": 0.2975,
+      "scoreDefAjustado": 0.1375,
+      "scoreAjustado": 0.2175,
+      "Golos": 1.0,
+      "xG": 0.5,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 2.0,
+      "Remates no alvo": 1.0,
+      "Passes": 7.0,
+      "Passes certos": 6.0,
+      "Cruzamentos": 3.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 1.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Felipe Anderson",
+      "posicao": "Extremo",
+      "data": "2026-08-15",
+      "adversario": "Fluminense",
+      "local": "Fora",
+      "resultado": "2-3",
+      "nivel": 5,
+      "minutos": 10,
+      "scoreOfAjustado": 0.0925,
+      "scoreDefAjustado": 0.17,
+      "scoreAjustado": 0.1313,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 5.0,
+      "Passes certos": 3.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Andreas Pereira",
+      "posicao": "Meia",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.19,
+      "scoreDefAjustado": 0.0264,
+      "scoreAjustado": 0.1082,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 1.0,
+      "xA": 0.21,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 73.0,
+      "Passes certos": 59.0,
+      "Cruzamentos": 8.0,
+      "Cruzamentos certos": 2.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 5.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 16.0,
+      "Recuperações (total)": 6.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 3.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 3.0
+    },
+    {
+      "jogador": "Arthur",
+      "posicao": "Lateral Esquerdo",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.094,
+      "scoreDefAjustado": 0.0867,
+      "scoreAjustado": 0.0904,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 38.0,
+      "Passes certos": 29.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 16.0,
+      "Duelos certos": 8.0,
+      "Perdas (total)": 10.0,
+      "Recuperações (total)": 6.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 7.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Gustavo Gómez",
+      "posicao": "Zagueiro",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.3489,
+      "scoreDefAjustado": 0.0313,
+      "scoreAjustado": 0.1901,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 67.0,
+      "Passes certos": 60.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 5.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "José Manuel López",
+      "posicao": "Centroavante",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.0666,
+      "scoreDefAjustado": 0.0927,
+      "scoreAjustado": 0.0796,
+      "Golos": 2.0,
+      "xG": 0.28,
+      "Assistências": 0.0,
+      "xA": 0.04,
+      "Remates": 3.0,
+      "Remates no alvo": 2.0,
+      "Passes": 23.0,
+      "Passes certos": 18.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 5.0,
+      "Dribles certos": 3.0,
+      "Duelos": 16.0,
+      "Duelos certos": 10.0,
+      "Perdas (total)": 8.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 5.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 5.0,
+      "Duelos aéreos": 4.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Mauricio",
+      "posicao": "Meia",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.1169,
+      "scoreDefAjustado": 0.0416,
+      "scoreAjustado": 0.0792,
+      "Golos": 1.0,
+      "xG": 0.38,
+      "Assistências": 0.0,
+      "xA": 0.32,
+      "Remates": 3.0,
+      "Remates no alvo": 1.0,
+      "Passes": 42.0,
+      "Passes certos": 36.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 8.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 5.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Agustín Giay",
+      "posicao": "Lateral Direito",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 83,
+      "scoreOfAjustado": 0.1658,
+      "scoreDefAjustado": 0.0557,
+      "scoreAjustado": 0.1107,
+      "Golos": 0.0,
+      "xG": 0.01,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 57.0,
+      "Passes certos": 53.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 8.0,
+      "Duelos certos": 5.0,
+      "Perdas (total)": 6.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 3.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 4.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Allan",
+      "posicao": "Meia",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 71,
+      "scoreOfAjustado": 0.1159,
+      "scoreDefAjustado": 0.0296,
+      "scoreAjustado": 0.0727,
+      "Golos": 0.0,
+      "xG": 0.02,
+      "Assistências": 1.0,
+      "xA": 0.03,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 27.0,
+      "Passes certos": 25.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 5.0,
+      "Dribles certos": 2.0,
+      "Duelos": 10.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 8.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 5.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Marlon Freitas",
+      "posicao": "Volante",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 71,
+      "scoreOfAjustado": 0.2451,
+      "scoreDefAjustado": 0.0485,
+      "scoreAjustado": 0.1468,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 44.0,
+      "Passes certos": 43.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 5.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 1.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 1.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 3.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Vitor Roque",
+      "posicao": "Centroavante",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 70,
+      "scoreOfAjustado": 0.0578,
+      "scoreDefAjustado": 0.118,
+      "scoreAjustado": 0.0879,
+      "Golos": 1.0,
+      "xG": 1.03,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 4.0,
+      "Remates no alvo": 2.0,
+      "Passes": 12.0,
+      "Passes certos": 10.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 16.0,
+      "Duelos certos": 10.0,
+      "Perdas (total)": 5.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 4.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 6.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Alexander Barboza",
+      "posicao": "Zagueiro",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 45,
+      "scoreOfAjustado": 0.2752,
+      "scoreDefAjustado": 0.0649,
+      "scoreAjustado": 0.17,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.04,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 27.0,
+      "Passes certos": 22.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 6.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Murilo",
+      "posicao": "Zagueiro",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 45,
+      "scoreOfAjustado": 0.4018,
+      "scoreDefAjustado": 0.056,
+      "scoreAjustado": 0.2289,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 38.0,
+      "Passes certos": 34.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 4.0,
+      "Duelos certos": 4.0,
+      "Perdas (total)": 4.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Jhon Arias",
+      "posicao": "Extremo",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 20,
+      "scoreOfAjustado": 0.1041,
+      "scoreDefAjustado": 0.11,
+      "scoreAjustado": 0.107,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 1.0,
+      "xA": 0.01,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 15.0,
+      "Passes certos": 15.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Emiliano Martínez",
+      "posicao": "Volante",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 19,
+      "scoreOfAjustado": 0.558,
+      "scoreDefAjustado": 0.123,
+      "scoreAjustado": 0.3405,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 28.0,
+      "Passes certos": 27.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 3.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 1.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Felipe Anderson",
+      "posicao": "Extremo",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 19,
+      "scoreOfAjustado": 0.1573,
+      "scoreDefAjustado": 0.085,
+      "scoreAjustado": 0.1212,
+      "Golos": 0.0,
+      "xG": 0.02,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 26.0,
+      "Passes certos": 26.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 2.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 0.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Khellven",
+      "posicao": "Lateral Direito",
+      "data": "2026-08-23",
+      "adversario": "Vasco da Gama",
+      "local": "Casa",
+      "resultado": "4-1",
+      "nivel": 2,
+      "minutos": 7,
+      "scoreOfAjustado": 0.065,
+      "scoreDefAjustado": 0.045,
+      "scoreAjustado": 0.055,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 6.0,
+      "Passes certos": 4.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 0.0,
+      "Duelos": 3.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 4.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Agustín Giay",
+      "posicao": "Lateral Direito",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.1233,
+      "scoreDefAjustado": 0.0416,
+      "scoreAjustado": 0.0824,
+      "Golos": 0.0,
+      "xG": 0.05,
+      "Assistências": 0.0,
+      "xA": 0.07,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 46.0,
+      "Passes certos": 36.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 2.0,
+      "Dribles certos": 2.0,
+      "Duelos": 11.0,
+      "Duelos certos": 8.0,
+      "Perdas (total)": 11.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 3.0,
+      "Duelos ofensivos": 2.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Andreas Pereira",
+      "posicao": "Meia",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.121,
+      "scoreDefAjustado": 0.018,
+      "scoreAjustado": 0.0695,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.05,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 48.0,
+      "Passes certos": 37.0,
+      "Cruzamentos": 10.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 6.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 11.0,
+      "Recuperações (total)": 2.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 2.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Arthur",
+      "posicao": "Lateral Esquerdo",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.1365,
+      "scoreDefAjustado": 0.0476,
+      "scoreAjustado": 0.092,
+      "Golos": 0.0,
+      "xG": 0.02,
+      "Assistências": 0.0,
+      "xA": 0.04,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 51.0,
+      "Passes certos": 43.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 8.0,
+      "Duelos certos": 3.0,
+      "Perdas (total)": 9.0,
+      "Recuperações (total)": 5.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 2.0,
+      "Cartões vermelhos": 1.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 4.0,
+      "Alívios (Clearances)": 4.0,
+      "Faltas cometidas": 3.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Gustavo Gómez",
+      "posicao": "Zagueiro",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.2553,
+      "scoreDefAjustado": 0.0816,
+      "scoreAjustado": 0.1684,
+      "Golos": 0.0,
+      "xG": 0.45,
+      "Assistências": 1.0,
+      "xA": 0.12,
+      "Remates": 2.0,
+      "Remates no alvo": 1.0,
+      "Passes": 46.0,
+      "Passes certos": 43.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 11.0,
+      "Duelos certos": 5.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 3.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 9.0,
+      "Remates bloqueados": 1.0,
+      "Interceções": 2.0,
+      "Alívios (Clearances)": 3.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "José Manuel López",
+      "posicao": "Centroavante",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.0563,
+      "scoreDefAjustado": 0.0884,
+      "scoreAjustado": 0.0724,
+      "Golos": 0.0,
+      "xG": 0.17,
+      "Assistências": 0.0,
+      "xA": 0.06,
+      "Remates": 3.0,
+      "Remates no alvo": 1.0,
+      "Passes": 28.0,
+      "Passes certos": 20.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 16.0,
+      "Duelos certos": 7.0,
+      "Perdas (total)": 12.0,
+      "Recuperações (total)": 4.0,
+      "Toques na área": 6.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 2.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 6.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Marlon Freitas",
+      "posicao": "Volante",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.266,
+      "scoreDefAjustado": 0.0173,
+      "scoreAjustado": 0.1416,
+      "Golos": 0.0,
+      "xG": 0.17,
+      "Assistências": 0.0,
+      "xA": 0.05,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 62.0,
+      "Passes certos": 55.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 1.0,
+      "Perdas (total)": 7.0,
+      "Recuperações (total)": 3.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 2.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 2.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 2.0
+    },
+    {
+      "jogador": "Murilo",
+      "posicao": "Zagueiro",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 90,
+      "scoreOfAjustado": 0.3445,
+      "scoreDefAjustado": 0.0238,
+      "scoreAjustado": 0.1841,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.01,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 68.0,
+      "Passes certos": 58.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 3.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 10.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 0.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 5.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Mauricio",
+      "posicao": "Meia",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 87,
+      "scoreOfAjustado": 0.0723,
+      "scoreDefAjustado": -0.0021,
+      "scoreAjustado": 0.0351,
+      "Golos": 1.0,
+      "xG": 0.53,
+      "Assistências": 0.0,
+      "xA": 0.03,
+      "Remates": 2.0,
+      "Remates no alvo": 1.0,
+      "Passes": 26.0,
+      "Passes certos": 19.0,
+      "Cruzamentos": 3.0,
+      "Cruzamentos certos": 1.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 5.0,
+      "Duelos certos": 0.0,
+      "Perdas (total)": 10.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    },
+    {
+      "jogador": "Felipe Anderson",
+      "posicao": "Extremo",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 70,
+      "scoreOfAjustado": 0.0635,
+      "scoreDefAjustado": 0.1003,
+      "scoreAjustado": 0.0819,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.02,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 37.0,
+      "Passes certos": 28.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 3.0,
+      "Dribles certos": 2.0,
+      "Duelos": 14.0,
+      "Duelos certos": 6.0,
+      "Perdas (total)": 13.0,
+      "Recuperações (total)": 8.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 3.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 1.0,
+      "Alívios (Clearances)": 2.0,
+      "Faltas cometidas": 1.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Vitor Roque",
+      "posicao": "Centroavante",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 70,
+      "scoreOfAjustado": 0.0372,
+      "scoreDefAjustado": 0.0829,
+      "scoreAjustado": 0.06,
+      "Golos": 0.0,
+      "xG": 0.01,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 10.0,
+      "Passes certos": 9.0,
+      "Cruzamentos": 2.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 12.0,
+      "Duelos certos": 5.0,
+      "Perdas (total)": 1.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 4.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 6.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 3.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Khellven",
+      "posicao": "Lateral Direito",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 20,
+      "scoreOfAjustado": 0.1175,
+      "scoreDefAjustado": 0.057,
+      "scoreAjustado": 0.0872,
+      "Golos": 0.0,
+      "xG": 0.12,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 2.0,
+      "Remates no alvo": 0.0,
+      "Passes": 8.0,
+      "Passes certos": 7.0,
+      "Cruzamentos": 1.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 1.0,
+      "Dribles certos": 1.0,
+      "Duelos": 2.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 1.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 1.0,
+      "Duelos ofensivos": 1.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 1.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 0.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Lucas Evangelista",
+      "posicao": "Volante",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 20,
+      "scoreOfAjustado": 0.175,
+      "scoreDefAjustado": 0.022,
+      "scoreAjustado": 0.0985,
+      "Golos": 0.0,
+      "xG": 0.0,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 0.0,
+      "Remates no alvo": 0.0,
+      "Passes": 10.0,
+      "Passes certos": 7.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 3.0,
+      "Recuperações (total)": 0.0,
+      "Toques na área": 1.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 0.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 2.0,
+      "Passes decisivos": 0.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 0.0
+    },
+    {
+      "jogador": "Heittor",
+      "posicao": "Centroavante",
+      "data": "2026-08-30",
+      "adversario": "Mirassol",
+      "local": "Fora",
+      "resultado": "1-1",
+      "nivel": 2,
+      "minutos": 3,
+      "scoreOfAjustado": 0.0621,
+      "scoreDefAjustado": 0.072,
+      "scoreAjustado": 0.0671,
+      "Golos": 0.0,
+      "xG": 0.01,
+      "Assistências": 0.0,
+      "xA": 0.0,
+      "Remates": 1.0,
+      "Remates no alvo": 0.0,
+      "Passes": 5.0,
+      "Passes certos": 3.0,
+      "Cruzamentos": 0.0,
+      "Cruzamentos certos": 0.0,
+      "Dribles": 0.0,
+      "Dribles certos": 0.0,
+      "Duelos": 2.0,
+      "Duelos certos": 2.0,
+      "Perdas (total)": 2.0,
+      "Recuperações (total)": 1.0,
+      "Toques na área": 2.0,
+      "Cartões amarelos": 0.0,
+      "Cartões vermelhos": 0.0,
+      "Duelos defensivos": 0.0,
+      "Duelos ofensivos": 0.0,
+      "Duelos aéreos": 1.0,
+      "Remates bloqueados": 0.0,
+      "Interceções": 0.0,
+      "Alívios (Clearances)": 0.0,
+      "Faltas cometidas": 0.0,
+      "Faltas sofridas": 1.0,
+      "Passes decisivos": 1.0,
+      "Segunda assistência": 0.0,
+      "Terceira assistência": 0.0,
+      "Shot assists": 1.0
+    }
+  ]
+};
+
+const DATA = window.DASHBOARD_DATA;
+
+const POSICOES = [
+  "Zagueiro",
+  "Lateral Direito",
+  "Lateral Esquerdo",
+  "Volante",
+  "Meia",
+  "Extremo",
+  "Centroavante",
+];
+
+const POS_ABBR = {
+  Zagueiro: "ZAG",
+  "Lateral Direito": "LD",
+  "Lateral Esquerdo": "LE",
+  Volante: "VOL",
+  Meia: "MEI",
+  Extremo: "EXT",
+  Centroavante: "CA",
+};
+
+const POS_COLOR = {
+  Zagueiro: "#7aa2c4",
+  "Lateral Direito": "#3db8a0",
+  "Lateral Esquerdo": "#2a8f7c",
+  Volante: "#3dce73",
+  Meia: "#d4b45a",
+  Extremo: "#e08a3c",
+  Centroavante: "#d45b5b",
+};
+
+const METRIC_LABEL = {
+  scoreFinal: "Score final",
+  notaOfensiva: "Nota ofensiva",
+  notaDefensiva: "Nota defensiva",
+};
+
+const state = {
+  search: "",
+  posicoes: new Set(),
+  jogo: "all",
+  minMinutos: 0,
+  sort: "scoreFinal",
+  metric: "scoreFinal",
+  selected: null,
+};
+
+const els = {
+  metaLine: document.getElementById("metaLine"),
+  matchStrip: document.getElementById("matchStrip"),
+  posChips: document.getElementById("posChips"),
+  searchInput: document.getElementById("searchInput"),
+  minRange: document.getElementById("minRange"),
+  minLabel: document.getElementById("minLabel"),
+  sortSelect: document.getElementById("sortSelect"),
+  metricSelect: document.getElementById("metricSelect"),
+  resetBtn: document.getElementById("resetBtn"),
+  kpis: document.getElementById("kpis"),
+  bars: document.getElementById("bars"),
+  barTitle: document.getElementById("barTitle"),
+  scatter: document.getElementById("scatter"),
+  legend: document.getElementById("legend"),
+  tbody: document.getElementById("tbody"),
+  tableHint: document.getElementById("tableHint"),
+  drawer: document.getElementById("drawer"),
+  drawerName: document.getElementById("drawerName"),
+  drawerPos: document.getElementById("drawerPos"),
+  drawerScore: document.getElementById("drawerScore"),
+  drawerMeters: document.getElementById("drawerMeters"),
+  drawerStats: document.getElementById("drawerStats"),
+  drawerGames: document.getElementById("drawerGames"),
+  tooltip: document.getElementById("tooltip"),
+};
+
+function fmt(n, digits = 2) {
+  if (n == null || Number.isNaN(n)) return "—";
+  return Number(n).toLocaleString("pt-BR", {
+    minimumFractionDigits: digits,
+    maximumFractionDigits: digits,
+  });
+}
+
+function fmtInt(n) {
+  return Math.round(n || 0).toString();
+}
+
+function scoreColor(v) {
+  if (v >= 3.5) return "var(--green-bright)";
+  if (v >= 2) return "var(--gold)";
+  return "var(--danger)";
+}
+
+function normalize05(values) {
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  if (max === min) return values.map(() => 2.5);
+  return values.map((v) => (5 * (v - min)) / (max - min));
+}
+
+function dateLabel(iso) {
+  const [y, m, d] = iso.split("-");
+  return `${d}/${m}`;
+}
+
+function escapeXml(text) {
+  return String(text)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
+function shortName(full, allNames) {
+  const parts = full.trim().split(/\s+/);
+  const last = parts[parts.length - 1];
+  const clashes = allNames.filter((n) => n.trim().split(/\s+/).pop() === last).length > 1;
+  if (clashes && parts.length > 1) return `${parts[0]} ${last}`;
+  return last;
+}
+
+function resultClass(resultado) {
+  const [a, b] = resultado.split("-").map(Number);
+  if (a > b) return "W";
+  if (a < b) return "L";
+  return "D";
+}
+
+function matchRows() {
+  if (state.jogo === "all") {
+    return DATA.players.map((p) => ({ ...p, origem: "periodo" }));
+  }
+
+  const games = DATA.performances.filter((p) => p.data === state.jogo);
+  const ofN = normalize05(games.map((p) => p.scoreOfAjustado));
+  const defN = normalize05(games.map((p) => p.scoreDefAjustado));
+
+  return games.map((p, i) => ({
+    ...p,
+    notaOfensiva: Math.round(ofN[i] * 100) / 100,
+    notaDefensiva: Math.round(defN[i] * 100) / 100,
+    scoreFinal: Math.round(((ofN[i] + defN[i]) / 2) * 100) / 100,
+    jogos: 1,
+    origem: "jogo",
+  }));
+}
+
+function filteredRows() {
+  const q = state.search.trim().toLowerCase();
+  let rows = matchRows().filter((p) => {
+    if (state.posicoes.size && !state.posicoes.has(p.posicao)) return false;
+    if (p.minutos < state.minMinutos) return false;
+    if (q && !p.jogador.toLowerCase().includes(q)) return false;
+    return true;
+  });
+
+  const key = state.sort;
+  rows.sort((a, b) => {
+    if (key === "jogador") return a.jogador.localeCompare(b.jogador, "pt-BR");
+    return (b[key] ?? 0) - (a[key] ?? 0);
+  });
+  return rows;
+}
+
+function renderMatches() {
+  const all = `<button type="button" class="match ${state.jogo === "all" ? "active" : ""}" data-jogo="all">
+    <strong>5 jogos</strong><span>período</span>
+  </button>`;
+
+  const items = DATA.jogos.map((j) => {
+    const active = state.jogo === j.id ? "active" : "";
+    const tag = resultClass(j.resultado);
+    return `<button type="button" class="match ${active}" data-jogo="${j.id}" data-result="${tag}">
+      <strong>${j.resultado}</strong>
+      <span>${dateLabel(j.data)} ${j.adversario}</span>
+      <span class="lvl">${j.local} · nv ${j.nivel}</span>
+    </button>`;
+  }).join("");
+
+  els.matchStrip.innerHTML = all + items;
+}
+
+function renderChips() {
+  els.posChips.innerHTML = POSICOES.map((pos) => {
+    const on = state.posicoes.has(pos) ? "active" : "";
+    return `<button type="button" class="chip ${on}" data-pos="${pos}">${POS_ABBR[pos]}</button>`;
+  }).join("");
+}
+
+function renderKpis(rows) {
+  if (!rows.length) {
+    els.kpis.innerHTML = `<div class="kpi"><p>Sem atletas</p><strong>0</strong></div>`;
+    return;
+  }
+  const best = [...rows].sort((a, b) => b.scoreFinal - a.scoreFinal)[0];
+  const avg = rows.reduce((s, r) => s + r.scoreFinal, 0) / rows.length;
+  const gols = rows.reduce((s, r) => s + (r.Golos || 0), 0);
+  const mins = rows.reduce((s, r) => s + r.minutos, 0);
+
+  els.kpis.innerHTML = `
+    <div class="kpi"><p>Melhor score</p><strong>${fmt(best.scoreFinal)}</strong><em>${best.jogador}</em></div>
+    <div class="kpi"><p>Média do recorte</p><strong>${fmt(avg)}</strong><em>${rows.length} atletas</em></div>
+    <div class="kpi"><p>Gols</p><strong>${fmtInt(gols)}</strong><em>${fmtInt(rows.reduce((s, r) => s + (r.Assistências || 0), 0))} assistências</em></div>
+    <div class="kpi"><p>Minutos</p><strong>${fmtInt(mins)}</strong><em>${state.jogo === "all" ? "soma do período" : "neste jogo"}</em></div>
+  `;
+}
+
+function renderBars(rows) {
+  const metric = state.metric;
+  els.barTitle.textContent = `Ranking por ${METRIC_LABEL[metric].toLowerCase()}`;
+  const ordered = [...rows].sort((a, b) => (b[metric] ?? 0) - (a[metric] ?? 0));
+
+  if (!ordered.length) {
+    els.bars.innerHTML = `<p class="empty">Nenhum jogador neste recorte.</p>`;
+    return;
+  }
+
+  els.bars.innerHTML = ordered.map((p, i) => {
+    const v = p[metric] ?? 0;
+    const pct = Math.max(4, (v / 5) * 100);
+    const color = POS_COLOR[p.posicao];
+    return `<div class="bar-row" data-player="${p.jogador}">
+      <span class="rk">${i + 1}</span>
+      <span class="nm">${p.jogador}<small>${POS_ABBR[p.posicao]} · ${p.minutos}'</small></span>
+      <div class="track"><div class="fill" style="width:${pct}%;background:${color}"></div></div>
+      <span class="val">${fmt(v)}</span>
+    </div>`;
+  }).join("");
+}
+
+function renderScatter(rows) {
+  const w = 560;
+  const h = 380;
+  const pad = { l: 40, r: 78, t: 22, b: 40 };
+  const x0 = pad.l;
+  const y0 = h - pad.b;
+  const x1 = w - pad.r;
+  const y1 = pad.t;
+  const names = rows.map((r) => r.jogador);
+
+  els.scatter.setAttribute("viewBox", `0 0 ${w} ${h}`);
+
+  const sx = (v) => x0 + (v / 5) * (x1 - x0);
+  const sy = (v) => y0 - (v / 5) * (y0 - y1);
+
+  const ticks = [0, 1, 2, 3, 4, 5];
+  const grid = ticks.map((t) => {
+    const x = sx(t);
+    const y = sy(t);
+    return `
+      <line x1="${x}" y1="${y1}" x2="${x}" y2="${y0}" stroke="#1a3d2a" />
+      <line x1="${x0}" y1="${y}" x2="${x1}" y2="${y}" stroke="#1a3d2a" />
+      <text class="axis-label" x="${x}" y="${y0 + 16}" text-anchor="middle">${t}</text>
+      <text class="axis-label" x="${x0 - 8}" y="${y + 4}" text-anchor="end">${t}</text>
+    `;
+  }).join("");
+
+  const points = rows.map((p) => {
+    const x = sx(p.notaOfensiva);
+    const y = sy(p.notaDefensiva);
+    const right = x < x0 + (x1 - x0) * 0.72;
+    return {
+      p,
+      x,
+      y,
+      label: shortName(p.jogador, names),
+      anchor: right ? "start" : "end",
+      lx: right ? x + 10 : x - 10,
+      ly: y + 3,
+    };
+  }).sort((a, b) => a.ly - b.ly);
+
+  for (let i = 1; i < points.length; i++) {
+    const gap = points[i].ly - points[i - 1].ly;
+    const closeX = Math.abs(points[i].x - points[i - 1].x) < 90;
+    if (closeX && gap < 12) points[i].ly = points[i - 1].ly + 12;
+  }
+
+  const dots = points.map(({ p, x, y, label, anchor, lx, ly }) => `
+    <g class="dot-hit" data-player="${escapeXml(p.jogador)}"
+       data-tip="${escapeXml(p.jogador)} · OF ${fmt(p.notaOfensiva)} · DEF ${fmt(p.notaDefensiva)}">
+      <circle class="dot" cx="${x}" cy="${y}" r="6.5" fill="${POS_COLOR[p.posicao]}" />
+      <text class="dot-label" x="${lx}" y="${ly}" text-anchor="${anchor}">${escapeXml(label)}</text>
+    </g>
+  `).join("");
+
+  els.scatter.innerHTML = `
+    ${grid}
+    <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y0}" stroke="#8aa893" />
+    <line x1="${x0}" y1="${y0}" x2="${x0}" y2="${y1}" stroke="#8aa893" />
+    <text class="axis-label" x="${(x0 + x1) / 2}" y="${h - 6}" text-anchor="middle">Nota ofensiva</text>
+    <text class="axis-label" x="12" y="${(y0 + y1) / 2}" transform="rotate(-90 12 ${(y0 + y1) / 2})" text-anchor="middle">Nota defensiva</text>
+    ${dots}
+  `;
+
+  const used = [...new Set(rows.map((r) => r.posicao))];
+  els.legend.innerHTML = used.map((pos) =>
+    `<span><i style="background:${POS_COLOR[pos]}"></i>${POS_ABBR[pos]}</span>`
+  ).join("");
+}
+
+function renderTable(rows) {
+  els.tableHint.textContent = state.jogo === "all"
+    ? "Notas do período de 5 jogos, normalizadas contra o elenco"
+    : "Notas deste jogo, normalizadas entre os atletas da partida";
+
+  els.tbody.innerHTML = rows.map((p, i) => `
+    <tr data-player="${p.jogador}">
+      <td class="num">${i + 1}</td>
+      <td>
+        <span class="player-cell">${p.jogador}
+          <small>${p.posicao}</small>
+        </span>
+      </td>
+      <td class="pos-tag">${POS_ABBR[p.posicao]}</td>
+      <td class="num">${fmtInt(p.minutos)}</td>
+      <td class="num">${fmtInt(p.Golos)}</td>
+      <td class="num">${fmtInt(p.Assistências)}</td>
+      <td class="num">${fmt(p.notaOfensiva)}</td>
+      <td class="num">${fmt(p.notaDefensiva)}</td>
+      <td class="num">
+        <span class="score-pill" style="color:${scoreColor(p.scoreFinal)}">${fmt(p.scoreFinal)}</span>
+      </td>
+    </tr>
+  `).join("") || `<tr><td colspan="9" class="empty">Nenhum jogador neste recorte.</td></tr>`;
+}
+
+function playerRecord(name) {
+  return DATA.players.find((p) => p.jogador === name);
+}
+
+function openDrawer(name) {
+  const period = playerRecord(name);
+  const games = DATA.performances
+    .filter((p) => p.jogador === name)
+    .sort((a, b) => a.data.localeCompare(b.data));
+  const current = filteredRows().find((p) => p.jogador === name) || period;
+  if (!current && !period) return;
+
+  const p = period || current;
+  state.selected = name;
+  els.drawer.hidden = false;
+  els.drawerPos.textContent = `${p.posicao} · ${p.jogos} jogos · ${p.minutos} min no período`;
+  els.drawerName.textContent = p.jogador;
+  els.drawerScore.textContent = fmt(p.scoreFinal);
+
+  els.drawerMeters.innerHTML = `
+    <div>
+      <div class="meter-label"><span>Ofensivo</span><span>${fmt(p.notaOfensiva)}</span></div>
+      <div class="meter-bar"><span style="width:${(p.notaOfensiva / 5) * 100}%;background:${POS_COLOR[p.posicao]}"></span></div>
+    </div>
+    <div>
+      <div class="meter-label"><span>Defensivo</span><span>${fmt(p.notaDefensiva)}</span></div>
+      <div class="meter-bar"><span style="width:${(p.notaDefensiva / 5) * 100}%;background:${POS_COLOR[p.posicao]}"></span></div>
+    </div>
+  `;
+
+  const pctPass = p.Passes ? (p["Passes certos"] / p.Passes) * 100 : 0;
+  const stats = [
+    ["Gols", fmtInt(p.Golos)],
+    ["xG", fmt(p.xG, 2)],
+    ["Assistências", fmtInt(p.Assistências)],
+    ["xA", fmt(p.xA, 2)],
+    ["Remates", fmtInt(p.Remates)],
+    ["Toques na área", fmtInt(p["Toques na área"])],
+    ["Passes certos", `${fmt(pctPass, 0)}%`],
+    ["Passes decisivos", fmtInt(p["Passes decisivos"])],
+    ["Recuperações", fmtInt(p["Recuperações (total)"])],
+    ["Interceções", fmtInt(p.Interceções)],
+    ["Duelos certos", fmtInt(p["Duelos certos"])],
+    ["Cartões", `${fmtInt(p["Cartões amarelos"])} / ${fmtInt(p["Cartões vermelhos"])}`],
+  ];
+
+  els.drawerStats.innerHTML = stats.map(([k, v]) =>
+    `<div class="stat"><b>${v}</b><span>${k}</span></div>`
+  ).join("");
+
+  els.drawerGames.innerHTML = games.map((g) => `
+    <div class="game">
+      <div>
+        <div>${dateLabel(g.data)} ${g.adversario} (${g.local})</div>
+        <small style="color:var(--muted)">${g.minutos}' · ${g.Golos}G ${g.Assistências}A · ${g.resultado}</small>
+      </div>
+      <span>OF ${fmt(g.scoreOfAjustado, 3)}</span>
+      <b>${fmt((g.scoreOfAjustado + g.scoreDefAjustado) / 2, 3)}</b>
+    </div>
+  `).join("") || "<p class='empty'>Sem atuações.</p>";
+}
+
+function closeDrawer() {
+  state.selected = null;
+  els.drawer.hidden = true;
+}
+
+function render() {
+  els.metaLine.textContent = `${DATA.meta.janela} · ${DATA.meta.fonte}`;
+  renderMatches();
+  renderChips();
+  const rows = filteredRows();
+  renderKpis(rows);
+  renderBars(rows);
+  renderScatter(rows);
+  renderTable(rows);
+}
+
+function bind() {
+  els.searchInput.addEventListener("input", (e) => {
+    state.search = e.target.value;
+    render();
+  });
+
+  els.minRange.addEventListener("input", (e) => {
+    state.minMinutos = Number(e.target.value);
+    els.minLabel.textContent = String(state.minMinutos);
+    render();
+  });
+
+  els.sortSelect.addEventListener("change", (e) => {
+    state.sort = e.target.value;
+    render();
+  });
+
+  els.metricSelect.addEventListener("change", (e) => {
+    state.metric = e.target.value;
+    render();
+  });
+
+  els.resetBtn.addEventListener("click", () => {
+    state.search = "";
+    state.posicoes.clear();
+    state.jogo = "all";
+    state.minMinutos = 0;
+    state.sort = "scoreFinal";
+    state.metric = "scoreFinal";
+    els.searchInput.value = "";
+    els.minRange.value = "0";
+    els.minLabel.textContent = "0";
+    els.sortSelect.value = "scoreFinal";
+    els.metricSelect.value = "scoreFinal";
+    closeDrawer();
+    render();
+  });
+
+  els.matchStrip.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-jogo]");
+    if (!btn) return;
+    state.jogo = btn.dataset.jogo;
+    render();
+  });
+
+  els.posChips.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-pos]");
+    if (!btn) return;
+    const pos = btn.dataset.pos;
+    if (state.posicoes.has(pos)) state.posicoes.delete(pos);
+    else state.posicoes.add(pos);
+    render();
+  });
+
+  document.body.addEventListener("click", (e) => {
+    const hit = e.target.closest("[data-player]");
+    if (hit) openDrawer(hit.dataset.player);
+  });
+
+  els.drawer.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close]")) closeDrawer();
+  });
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeDrawer();
+  });
+
+  els.scatter.addEventListener("pointermove", (e) => {
+    const dot = e.target.closest("[data-tip]");
+    if (!dot) {
+      els.tooltip.hidden = true;
+      return;
+    }
+    els.tooltip.hidden = false;
+    els.tooltip.textContent = dot.dataset.tip;
+    els.tooltip.style.left = `${e.clientX + 12}px`;
+    els.tooltip.style.top = `${e.clientY + 12}px`;
+  });
+
+  els.scatter.addEventListener("pointerleave", () => {
+    els.tooltip.hidden = true;
+  });
+
+  document.querySelectorAll("th[data-sort]").forEach((th) => {
+    th.style.cursor = "pointer";
+    th.addEventListener("click", () => {
+      state.sort = th.dataset.sort;
+      els.sortSelect.value = state.sort;
+      render();
+    });
+  });
+}
+
+function boot() {
+  if (!window.DASHBOARD_DATA) {
+    document.body.insertAdjacentHTML(
+      "afterbegin",
+      '<p class="empty">Não foi possível carregar os dados do dashboard.</p>'
+    );
+    return;
+  }
+  bind();
+  render();
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", boot);
+} else {
+  boot();
+}
+
+</script>
+</body>
+</html>

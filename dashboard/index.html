@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Palmeiras · Score CIGA</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="pitch" aria-hidden="true"></div>
+
+  <header class="top">
+    <div class="brand">
+      <span class="crest">SEP</span>
+      <div>
+        <p class="kicker">Score CIGA · Brasileirão 2026</p>
+        <h1>Palmeiras</h1>
+      </div>
+    </div>
+    <p class="meta" id="metaLine"></p>
+  </header>
+
+  <section class="matches" id="matchStrip" aria-label="Filtro por jogo"></section>
+
+  <section class="filters" aria-label="Filtros">
+    <label class="search">
+      <span>Buscar</span>
+      <input id="searchInput" type="search" placeholder="Nome do jogador" autocomplete="off" />
+    </label>
+
+    <div class="filter-block">
+      <span>Posição</span>
+      <div class="chips" id="posChips"></div>
+    </div>
+
+    <label class="minutes">
+      <span>Mín. minutos <strong id="minLabel">0</strong></span>
+      <input id="minRange" type="range" min="0" max="450" step="5" value="0" />
+    </label>
+
+    <label class="select-wrap">
+      <span>Ordenar</span>
+      <select id="sortSelect">
+        <option value="scoreFinal">Score final</option>
+        <option value="notaOfensiva">Nota ofensiva</option>
+        <option value="notaDefensiva">Nota defensiva</option>
+        <option value="minutos">Minutos</option>
+        <option value="Golos">Gols</option>
+        <option value="Assistências">Assistências</option>
+        <option value="jogador">Nome</option>
+      </select>
+    </label>
+
+    <label class="select-wrap">
+      <span>Gráfico</span>
+      <select id="metricSelect">
+        <option value="scoreFinal">Score final</option>
+        <option value="notaOfensiva">Ofensivo</option>
+        <option value="notaDefensiva">Defensivo</option>
+      </select>
+    </label>
+
+    <button type="button" class="ghost" id="resetBtn">Limpar filtros</button>
+  </section>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="charts">
+    <article class="panel">
+      <header class="panel-head">
+        <h2 id="barTitle">Ranking por score final</h2>
+        <p>Clique na barra para abrir o atleta</p>
+      </header>
+      <div class="bars" id="bars"></div>
+    </article>
+
+    <article class="panel">
+      <header class="panel-head">
+        <h2>Ofensivo × defensivo</h2>
+        <p>Escala 0–5 · cor = posição</p>
+      </header>
+      <div class="scatter-wrap">
+        <svg id="scatter" viewBox="0 0 560 380" role="img" aria-label="Dispersão ofensivo versus defensivo"></svg>
+        <div class="legend" id="legend"></div>
+      </div>
+    </article>
+  </section>
+
+  <section class="panel table-panel">
+    <header class="panel-head">
+      <h2>Elenco</h2>
+      <p id="tableHint">Notas do período de 5 jogos, normalizadas contra o elenco</p>
+    </header>
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Jogador</th>
+            <th>Pos</th>
+            <th class="num" data-sort="minutos">Min</th>
+            <th class="num" data-sort="Golos">G</th>
+            <th class="num" data-sort="Assistências">A</th>
+            <th class="num" data-sort="notaOfensiva">OF</th>
+            <th class="num" data-sort="notaDefensiva">DEF</th>
+            <th class="num" data-sort="scoreFinal">Score</th>
+          </tr>
+        </thead>
+        <tbody id="tbody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <aside class="drawer" id="drawer" hidden>
+    <div class="drawer-backdrop" data-close></div>
+    <div class="drawer-sheet" role="dialog" aria-modal="true" aria-labelledby="drawerName">
+      <button type="button" class="close" data-close aria-label="Fechar">×</button>
+      <p class="kicker" id="drawerPos"></p>
+      <h2 id="drawerName"></h2>
+      <div class="drawer-score" id="drawerScore"></div>
+      <div class="meters" id="drawerMeters"></div>
+      <div class="stat-grid" id="drawerStats"></div>
+      <h3>Por jogo</h3>
+      <div class="game-list" id="drawerGames"></div>
+    </div>
+  </aside>
+
+  <footer>
+    <p>Modelo Score CIGA · pesos ofensivos e defensivos por posição · goleiros fora da escala</p>
+  </footer>
+
+  <div class="tooltip" id="tooltip" hidden></div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
